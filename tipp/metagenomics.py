@@ -52,7 +52,7 @@ def to_fasta(input, temp_dir):
             fiter = fastq_iter(input)
 
     # Create a new input file
-    new_input = temp_dir + '/' + input.split('.', 1)[0] + ".fasta"
+    new_input = temp_dir + '/' + input.strip().split('/')[-1].split('.', 1)[0] + ".fasta"
     with open(new_input, 'w') as fp:
         for ff in fiter:
             fp.write('>' + ff[0] + '\n')
@@ -582,52 +582,64 @@ def hmmer_to_markers(input, temp_dir):
 
 
 def fasta_iter(fasta_name):
+	## Sometimes fasta sequences can be blank, so we check for '>' before using .strip() in assigning nextheader
     with open(fasta_name, 'r') as fp:
-        xline = fp.readline().strip()
-        # if line[0] != '>':
-        #     raise("Unable to read %s" % fasta_name)
-        nextheader = xline
+        xline = fp.readline()
+        if xline[0] != '>':
+            raise("Unable to read %s" % fasta_name)
+        nextheader = xline.strip()
         nextseq = []
 
         for line in fp:
-            xline = line.strip()
+            xline = line
             if xline[0] == '>':
                 header = nextheader[1:].split(' ')[0]
                 seq = "".join(nextseq)
-                nextheader = xline
+                nextheader = xline.strip()
                 nextseq = []
-                yield header, seq
+                if len(seq) == 0:
+                	pass
+                else:
+                	yield header, seq
             else:
-                nextseq.append(xline)
+                nextseq.append(xline.strip())
 
-        header = nextheader[1:]
+        header = nextheader[1:].split(' ')[0]
         seq = "".join(nextseq)
-        yield header, seq
+        if len(seq) == 0:
+        	pass
+        else:
+        	yield header, seq
 
 
 def fastagz_iter(fasta_name):
     with gzip.open(fasta_name, 'r') as fp:
-        xline = fp.readline().decode('utf-8').strip()
-        # if line[0] != '>':
-        #     raise("Unable to read %s" % fasta_name)
-        nextheader = xline
+        xline = fp.readline().decode('utf-8')
+        if xline[0] != '>':
+            raise("Unable to read %s" % fasta_name)
+        nextheader = xline.strip()
         nextseq = []
 
         for line in fp:
-            xline = line.decode('utf-8').strip()
-            print(xline)
+            xline = line.decode('utf-8')
             if xline[0] == '>':
                 header = nextheader[1:].split(' ')[0]
                 seq = "".join(nextseq)
-                nextheader = xline
+                nextheader = xline.strip()
                 nextseq = []
-                yield header, seq
+                if len(seq) == 0:
+                	pass
+                else:
+                	yield header, seq
             else:
-                nextseq.append(xline)
+                nextseq.append(xline.strip())
 
-        header = nextheader[1:]
+        header = nextheader[1:].split(' ')[0]
         seq = "".join(nextseq)
-        yield header, seq
+        if len(seq) == 0:
+        	pass
+        else:
+        	yield header, seq
 
 
 def fastq_iter(fastq_name):
@@ -649,7 +661,10 @@ def fastq_iter(fastq_name):
                 continue
             else:
                 # Fourth line is quality
-                yield header, seq
+                if header == "" or len(seq) == 0:
+                	pass
+                else:
+                	yield header, seq
 
 
 def fastqgz_iter(fastq_name):
@@ -667,7 +682,10 @@ def fastqgz_iter(fastq_name):
                 continue
             else:
                 # Fourth line is quality
-                yield header, seq
+                if header == "" or len(seq) == 0:
+                	pass
+                else:
+                	yield header, seq
 
 
 def blast_to_markers(input, temp_dir):
