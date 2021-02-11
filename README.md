@@ -1,6 +1,7 @@
 Taxonomic Identification and Phylogenetic Profiling (TIPP)
 ==========================================================
-TIPP is a method for the following problems:
+Latest version is TIPP2
+TIPP(2) is a method for the following problems:
 
 Taxonomic identification:
 + Input: A query sequence *q*
@@ -20,12 +21,8 @@ Nguyen, Nam, Siavash Mirarab, Bo Liu, Mihai Pop, and Tandy Warnow, "TIPP: Taxono
 Shah, Nidhi, Erin K. Molloy, Mihai Pop, and Tandy Warnow, "TIPP2: metagenomic taxonomic profiling using phylogenetic markers," *Bioinformatics*, 2020. [doi:10.1093/bioinformatics/btab023](https://doi.org/10.1093/bioinformatics/btab023)
 
 ### Note and Acknowledgment: 
-- TIPP bundles the following two programs into its distribution:
-	- pplacer: http://matsen.fhcrc.org/pplacer/
-	- hmmer: http://hmmer.janelia.org/
-	- EPA: http://sco.h-its.org/exelixis/software.html
 - TIPP uses the [Dendropy](http://pythonhosted.org/DendroPy/) package. 
-- TIPP uses some code from [SATe](http://phylo.bio.ku.edu/software/sate/sate.html).
+- TIPP uses the [SEPP](https://github.com/smirarab/sepp/) package for alignment and placement steps.
 
 -------------------------------------
 
@@ -37,30 +34,30 @@ Requirements:
 -------------
 Before installing the software you need to make sure the following programs are installed on your machine.
 
-- Python: Version > 2.7 
-- Java: Version > 1.5
-- Blast: Version > 2.2.2
+- Python: Version > 3.9
+- Java: Version > 1.8
+- Blast: Version > 2.10.1
+- SEPP: Version > 4.4.0
 
 Installation Steps:
 -------------------
-TIPP is a part of the SEPP distribution package. First install SEPP. Once done, do the following. 
+TIPP requires SEPP to be installed. Once SEPP is installed, do the following
 
 1. Download and decompress the reference dataset available at [https://obj.umiacs.umd.edu/tipp/tipp2-refpkg.tar.gz](https://obj.umiacs.umd.edu/tipp/tipp2-refpkg.tar.gz).
 2. Set the environment variables (`REFERENCE` and `BLAST`) that will be used to create the configuration file. The `REFERENCE` environment variable should point to the location of the reference dataset (i.e. it should point to the `tipp2-refpkg` directory with its full path). The `BLAST` environment variable should to point to the location of the binary: `blastn`. Environment variables can be set using the following (shell-dependent) commands:
 	- `export VARIABLE_NAME=/path/to/file` (bash shell)
 	- `setenv VARIABLE_NAME /path/to/file` (tcsh shell)
-3. Create the TIPP configuration file by running the command: `python setup.py tipp` or `python setup.py tipp -c`. This  creates a `tipp.config` config file. It is important that you use `-c` here if you used `-c` when installing SEPP and otherwise, not use `-c`. 
-
+3. Create the TIPP configuration file by running the command: `python setup.py tipp` or `python setup.py tipp -c` to avoid using the home directory. This  creates a `tipp.config` config file.
 
 Common Problems:
 ----------------
 1. TIPP requires SEPP to be installed. If TIPP is not running, first check to see if SEPP was installed correctly by typing `run_sepp.py -h` to see it's user options.
 2. If you are installing sepp with the `--user` flag, then you may need to set your `PYTHONPATH` environmental variable. To run TIPP, you may also need to include your python bin directory in your `PATH` environmental variable. If you are having issues installing or running sepp, try adding the following lines to your bash profile file `~/.bash_profile`:
 ```
-export PYTHONPATH="$HOME/.local/lib/python3.7/site-packages:$PYTHONPATH"
+export PYTHONPATH="$HOME/.local/lib/python3.9/site-packages:$PYTHONPATH"
 export PATH="$HOME/.local/bin:$PATH"
 ```
-where `3.7` is replaced with the version of python that you are running.
+where `3.9` is replaced with the version of python that you are running.
 
 3. Several cluster systems that we have worked on have different commands to run different versions of python e.g. `python` runs python version 2.X and `python3` runs python version 3.Y. In this scenario, you need to be careful to be consistent with the python command (e.g. `python` or `python3`) when installing/configuring sepp and tipp.
 
