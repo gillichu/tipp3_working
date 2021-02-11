@@ -86,7 +86,7 @@ Placements are given in the `.json` file, created according to *pplacer* format.
 
 By setting `SEPP_DEBUG` environment variable to `True`, you can instruct SEPP to output more information that can be helpful for debugging.  
 
-This [tutorial](tutorial/tipp-tutorial.md) contains examples of running TIPP for read classification as well as abundance profiling using the script `run_abundance.py`.
+This [tutorial](tipp-tutorial.md) contains examples of running TIPP for read classification as well as abundance profiling using the script `run_abundance.py`.
 
 ---------------------------------------------
 
