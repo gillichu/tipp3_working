@@ -62,7 +62,6 @@ class ConfigSepp(Command):
         self.basepath = None
 
     def initpath(self, name):
-        print ("here", name)
         if self.contained:
             self.configfile = os.path.expanduser(
                 os.path.abspath(os.path.join(".tipp", name)))
@@ -71,11 +70,9 @@ class ConfigSepp(Command):
 
             self.configfile = os.path.expanduser("~/.tipp/%s" % name)
             self.basepath = os.path.expanduser("~/.tipp")
-            print (self.basepath)
         with open('home.path', 'w') as fo:
             fo.write(self.basepath)
             fo.close()
-            print ('done')
 
     def get_tools_dest(self):
         return os.path.join(self.basepath, "bundled-v%s" % version)
@@ -154,9 +151,10 @@ class ConfigTIPP(ConfigSepp):
         c = open(sepp_config_path)
         d = open(self.configfile, "w")
         for l3 in c:
-            l3 = l3.replace("~", self.get_tools_dest())
+            #This is not needed as we are reading sepp config and not default config distributed with 
+            # l3 = l3.replace("~", self.get_tools_dest())
             if (l3.find('seppJsonMerger.jar') != -1):
-              l3 = l3.replace('seppJsonMerger.jar', 'tippJsonMerger.jar')
+              l3 = "path="+self.get_tools_dest()+'/tippJsonMerger.jar\n'
             d.write(l3)
         if not os.getenv('SATE') is None:
             d.write('\n[sate]\npath=%s' % os.getenv('SATE'))
