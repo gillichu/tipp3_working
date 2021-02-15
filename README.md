@@ -49,6 +49,7 @@ TIPP requires SEPP to be installed. Once SEPP is installed, do the following
 	- `export VARIABLE_NAME=/path/to/file` (bash shell)
 	- `setenv VARIABLE_NAME /path/to/file` (tcsh shell)
 3. Create the TIPP configuration file by running the command: `python setup.py tipp` or `python setup.py tipp -c` to avoid using the home directory. This  creates a `tipp.config` config file.
+4. Install: run python setup.py install
 
 Common Problems:
 ----------------
