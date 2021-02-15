@@ -92,5 +92,6 @@ This [tutorial](tipp-tutorial.md) contains examples of running TIPP for read cla
 
 Bugs and Errors
 ===============
-TIPP is under active research development at UIUC by the Warnow Lab. Please report any errors to Tandy Warnow (warnow@illinois.edu) and Siavash Mirarab (smirarab@ucsd.edu).
+TIPP is under active research development by the Warnow Lab. Please report any errors to Tandy Warnow (warnow@illinois.edu), Siavash Mirarab (smirarab@ucsd.edu), Nidhi Shah (nidhi@umd.edu).
+
 
