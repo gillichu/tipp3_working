@@ -35,14 +35,17 @@ Requirements:
 -------------
 Before installing the software you need to make sure the following programs are installed on your machine.
 
-- Python: Version > 3.9
-- Java: Version > 1.8
+- Python: Version >= 3.7
+- Java: Version >= 1.8
 - Blast: Version > 2.10.1
-- SEPP: Version > 4.4.0
+- SEPP: Version >= v4.5.0
 
 Installation Steps:
 -------------------
-TIPP requires SEPP to be installed. Once SEPP is installed, do the following
+TIPP requires SEPP to be installed. <br />
+SEPP can be easily installed with conda - `conda install -c bioconda sepp=v4.5.0` or you can install from source directly. Check instructions [here](https://github.com/smirarab/sepp/blob/master/README.SEPP.md). <br />
+Once SEPP is installed, do the following
+
 
 1. Download and decompress the reference dataset available at [https://obj.umiacs.umd.edu/tipp/tipp2-refpkg.tar.gz](https://obj.umiacs.umd.edu/tipp/tipp2-refpkg.tar.gz).
 2. Set the environment variables (`REFERENCE` and `BLAST`) that will be used to create the configuration file. The `REFERENCE` environment variable should point to the location of the reference dataset (i.e. it should point to the `tipp2-refpkg` directory with its full path). The `BLAST` environment variable should to point to the location of the binary: `blastn`. Environment variables can be set using the following (shell-dependent) commands:
@@ -56,10 +59,10 @@ Common Problems:
 1. TIPP requires SEPP to be installed. If TIPP is not running, first check to see if SEPP was installed correctly by typing `run_sepp.py -h` to see it's user options.
 2. If you are installing sepp with the `--user` flag, then you may need to set your `PYTHONPATH` environmental variable. To run TIPP, you may also need to include your python bin directory in your `PATH` environmental variable. If you are having issues installing or running sepp, try adding the following lines to your bash profile file `~/.bash_profile`:
 ```
-export PYTHONPATH="$HOME/.local/lib/python3.9/site-packages:$PYTHONPATH"
+export PYTHONPATH="$HOME/.local/lib/python3.7/site-packages:$PYTHONPATH"
 export PATH="$HOME/.local/bin:$PATH"
 ```
-where `3.9` is replaced with the version of python that you are running.
+where `3.7` is replaced with the version of python that you are running.
 
 3. Several cluster systems that we have worked on have different commands to run different versions of python e.g. `python` runs python version 2.X and `python3` runs python version 3.Y. In this scenario, you need to be careful to be consistent with the python command (e.g. `python` or `python3`) when installing/configuring sepp and tipp.
 
@@ -71,17 +74,21 @@ where `3.9` is replaced with the version of python that you are running.
 
 Running TIPP
 ============
-TIPP is a general pipeline for classifying reads belonging to a specific marker gene.  We provide precomputed marker gene datasets for a collection of genes found in the tipp.zip archive.  
+TIPP is a general pipeline for classifying reads belonging to a specific marker gene or complete set of marker genes.  We provide precomputed marker gene datasets for a collection of genes found in the tipp2-refpkg archive.  
 
 The general command for running TIPP for a specific marker is:
 
-`run_tipp.py -R <reference_marker> -f <fragment_file>`
+`run_abundance.py -G <markers-v3> -f <input sequences> -d <output directory> --tempdir <intermediate results folder> --cpu 8 `
+
+If you want to run abundance profile using only a select few genes, then provide gene names comma separated to the `-g` parameter. For example, 
+`run_abundance.py -G <markers-v3> -g ArgS_COG0018,CysS_COG0215,Ffh_COG0541 -f <input sequences> -d <output directory> --tempdir <intermediate results folder> --cpu 8 `
 
 To see options for running the script, use the command:
 
-`run_tipp.py -h`
+`run_abundance.py -h`
 
-The main output of TIPP is a `_classification.txt` file that annotation for each read. 
+The main output of TIPP is a `_classification.txt` file that annotation for each read, and abundance.<taxonomic-level>.csv files with relative abundance at main taxonomic levels - phylum, class, order, family, genus, and species.
+
 TIPP also outputs other information about the fragments, including the alignments (note that there could be multiple alignment files created, each corresponding to a different placement subset) as well as the phylogenetic placements.
 Placements are given in the `.json` file, created according to *pplacer* format. Please refer to [pplacer website](http://matsen.github.com/pplacer/generated_rst/pplacer.html#json-format-specification) for more information on the form at of the `.json` file. Also note that *pplacer* package provides a program called *guppy* that can read `.json` files and  perform downstream steps such as visualization.
 
@@ -93,6 +100,6 @@ This [tutorial](tipp-tutorial.md) contains examples of running TIPP for read cla
 
 Bugs and Errors
 ===============
-TIPP is under active research development by the Warnow Lab. Please report any errors to Tandy Warnow (warnow@illinois.edu), Siavash Mirarab (smirarab@ucsd.edu), Nidhi Shah (nidhi@umd.edu).
+TIPP is under active research development by the Warnow Lab. Please report any errors to Tandy Warnow (warnow@illinois.edu), Siavash Mirarab (smirarab@ucsd.edu), Nidhi Shah (nidhi@umd.edu) and Erin Molloy (ekmolloy@cs.ucla.edu).
 
 
