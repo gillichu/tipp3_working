@@ -38,12 +38,12 @@ Before installing the software you need to make sure the following programs are 
 - Python: Version >= 3.7
 - Java: Version >= 1.8
 - Blast: Version > 2.10.1
-- SEPP: Version >= v4.5.0
+- SEPP: Version >= 4.5.1
 
 Installation Steps:
 -------------------
 TIPP requires SEPP to be installed. <br />
-SEPP can be easily installed with conda - `conda install -c bioconda sepp=v4.5.0` or you can install from source directly. Check instructions [here](https://github.com/smirarab/sepp/blob/master/README.SEPP.md). <br />
+SEPP can be easily installed with conda - `conda install -c bioconda sepp` or you can install from source directly. Check instructions [here](https://github.com/smirarab/sepp/blob/master/README.SEPP.md). <br />
 Once SEPP is installed, do the following
 
 
