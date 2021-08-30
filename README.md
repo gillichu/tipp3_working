@@ -19,7 +19,7 @@ Developers of TIPP: Nam Nguyen, Siavash Mirarab, Nidhi Shah, Erin Molloy, and Ta
 ### Publications:
 Nguyen, Nam, Siavash Mirarab, Bo Liu, Mihai Pop, and Tandy Warnow, "TIPP: Taxonomic identification and phylogenetic profiling," *Bioinformatics*, 2014. [doi:10.1093/bioinformatics/btu721](http://bioinformatics.oxfordjournals.org/content/30/24/3548.full.pdf).
 
-Shah, Nidhi, Erin K. Molloy, Mihai Pop, and Tandy Warnow, "TIPP2: metagenomic taxonomic profiling using phylogenetic markers," *Bioinformatics*, 2020. [doi:10.1093/bioinformatics/btab023](https://doi.org/10.1093/bioinformatics/btab023)
+Shah, Nidhi, Erin K. Molloy, Mihai Pop, and Tandy Warnow, "TIPP2: metagenomic taxonomic profiling using phylogenetic markers," *Bioinformatics*, 2020. [doi:10.1093/bioinformatics/btab023](https://doi.org/10.1093/bioinformatics/btab023). The datasets used in TIPP2 paper can be found [here](https://obj.umiacs.umd.edu/tipp/tipp-datasets.tar.gz). 
 
 ### Note and Acknowledgment: 
 - TIPP uses the [Dendropy](http://pythonhosted.org/DendroPy/) package. 
