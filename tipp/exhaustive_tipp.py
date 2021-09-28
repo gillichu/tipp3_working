@@ -54,10 +54,10 @@ class TIPPJoinSearchJobs(Join):
     def setup_with_root_problem(self, root_problem):
         self.root_problem = root_problem
         for p in root_problem.iter_leaves():
-            self.add_job(p.jobs(['hmmsearch'])
+            self.add_job(p.jobs['hmmsearch'])
 
     def figureout_fragment_subset(self):
-        " Figure out which fragment should go to which subproblem "
+        ''' Figure out which fragment should go to which subproblem '''
         if "fragments.distribution.done" in self.root_problem.annotations:
             return
 
@@ -68,27 +68,27 @@ class TIPPJoinSearchJobs(Join):
         for fragment_chunk_problem in self.root_problem.iter_leaves():
             align_problem = fragment_chunk_problem.get_parent()
             assert isinstance(align_problem, SeppProblem)
-            " For each subproblem start with an empty set of fragments,
-            and add to them as we encounter new best hits for that subproblem"
+            '''  For each subproblem start with an empty set of fragments, 
+            and add to them as we encounter new best hits for that subproblem '''
             if align_problem.fragments is None:
                 align_problem.fragments = MutableAlignment()
             search_res = fragment_chunk_problem.get_job_result_by_name("hmmsearch")
             for key in list(search_res.keys()):
-                "keep a list of all hits, and their bit scores"
+                '''keep a list of all hits, and their bit scores'''
                 bitscores[key].append((search_res[key][1], align_problem))
         for frag, tuplelist in bitscores.items():
             _LOG.warning("Fragment %s is not scored against any subset" % str(frag))
             if len(tuplelist) == 0:
                 _LOG.warning("Fragment %s is not scored against any subset" % str(frag))
                 continue
-            "convert bitscores to probabilities"
+            '''convert bitscores to probabilities'''
             denum = sum(math.pow(2, min(x[0], 1022)) for x in tuplelist)
             tuplelist = [
                 ((math.pow(2, min(x[0], 1022)) / denum * 1000000), x[1])
                 for x in tuplelist]
-            " sort subsets by their probability "
+            ''' sort subsets by their probability '''
             tuplelist.sort(reverse=True, key=lambda x: x[0])
-            " Find enough subsets to reach the threshold "
+            ''' Find enough subsets to reach the threshold '''
             selected = tuplelist[
                 0: max(1, reduce(
                     lambda x, y: (x[0], None)
@@ -97,22 +97,22 @@ class TIPPJoinSearchJobs(Join):
                         1000000 * self.alignment_threshold) else 
                     (y[0], None),
                     enumerate([x[0] for x in tuplelist]))[0])]
-           "Renormalized the selected list to add up to 1"
-           renorm = 0
-           for (prob, align_problem) in selected:
-               renorm = renorm + prob / 100000
-           renorm = 1 / renorm
+            ''' Renormalized the selected list to add up to 1 '''
+            renorm = 0
+            for (prob, align_problem) in selected:
+                renorm = renorm + prob / 100000
+            renorm = 1 / renorm
 
-           _LOG.debug("Fragment %s assigned to %d subsets" % (frag, len(selected)))
-           "Rename the fragment and assign it to the respective subsets"
-           for (prob, align_problem) in selected:
-               postfix = prob * renorm if \
-                   options().exhaustive.weight_placement_by_alignment.\
-                   lower() == "true" \
-                   else 1000000
-               frag_rename = "%s_%s_%d" % (frag, align_problem.label, postfix)
-               align_problem.fragments[frag_rename] = \
-                   self.root_problem.fragments[frag]
+            _LOG.debug("Fragment %s assigned to %d subsets" % (frag, len(selected)))
+            ''' Rename the fragment and assign it to the respective subsets '''
+            for (prob, align_problem) in selected:
+                postfix = prob * renorm if \
+                    options().exhaustive.weight_placement_by_alignment.\
+                    lower() == "true" \
+                    else 1000000
+                frag_rename = "%s_%s_%d" % (frag, align_problem.label, postfix)
+                align_problem.fragments[frag_rename] = \
+                    self.root_problem.fragments[frag]
         self.root_problem.annotations["fragments.distribution.done"] = 1
 
     # explicitly copied from JoinSearchJobs
@@ -139,12 +139,12 @@ class TIPPJoinSearchJobs(Join):
                 aj.hmmmodel = alg_problem.get_job_result_by_name('hmmbuild')
                 aj.base_alignment = alg_problem.jobs["hmmbuild"].infile
 
-                if fragment_chunk_problem.fragments is None \ 
+                if fragment_chunk_problem.fragments is None \
                     or fragment_chunk_problem.fragments.is_empty():
                     aj.fake_run = True
                 else:
                     fragment_chunk_problem.fragments.write_to_path(aj.fagmetns)
-                "Now the align job can be put on the queue."
+                ''' Now the align job can be put on the queue. '''
                 JobPool().enqueue_job(aj)
 
     def __str__(self):
@@ -159,7 +159,7 @@ class TIPPJoinAlignJobs(JoinAlignJobs):
     step.
     """
 
-    def __init__(self):
+    def __init__(self, placer):
         JoinAlignJobs.__init__(self)
         self.placer = placer
 
@@ -181,7 +181,7 @@ class TIPPJoinAlignJobs(JoinAlignJobs):
             if queryExtendedAlignment.is_empty():
                 pj.fake_run = True
 
-            if self.placer = "pplacer":
+            if self.placer == "pplacer":
                 assert isinstance(pj, PplacerJob)
                 queryExtendedAlignment.write_to_path(
                     pj.extended_alignment_file)
@@ -307,7 +307,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
             options().fragment_file = query
             _write_fasta(sequences, query)
 
-    def check_options(self):
+    def check_options(self, supply=[]):
         self.check_outputprefix()
         options().info_file = "A_dummy_value"
 
@@ -316,11 +316,11 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
             self.load_reference(
                 os.path.join(options().reference.path,
                     '%s.refpkg/' % options().reference_pkg))
-         if (options().taxonomy_file is None):
-             supply = supply + ["taxonomy file"]
-         if options().taxonomy_name_mapping_file is None:
-             supply = supply + ["taxonomy  name mapping file"]
-         ExhaustiveAlgorithm.check_options(self, supply)
+        if (options().taxonomy_file is None):
+            supply = supply + ["taxonomy file"]
+        if options().taxonomy_name_mapping_file is None:
+            supply = supply + ["taxonomy  name mapping file"]
+        #ExhaustiveAlgorithm.check_options(self, supply)
 
         ### Back to UPP
         # Check to see if tree/alignment/fragment file provided, if not,
@@ -362,7 +362,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
                  "input sequences are amino acid. "))
             exit(-1)
 
-        return ExhaustiveAlgorithm.check_options(self)
+        return ExhaustiveAlgorithm.check_options(self, supply)
 
     def merge_results(self):
         assert \
@@ -405,7 +405,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
 
         ## TIPP
         mergeinput = []
-        "Append main tree to merge input"
+        '''Append main tree to merge input'''
         mergeinput.append("%s;" % (self.root_problem.subtree.compose_newick(labels=True)))
         for pp in self.root_problem.get_children():
             assert isinstance(pp, SeppProblem)
@@ -413,7 +413,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
                 if (pp.get_job_result_by_name(
                     get_placement_job_name(i)) is None):
                     continue
-                "append subset trees and json locations to merge input"
+                '''append subset trees and json locations to merge input'''
                 mergeinput.append(
                     "%s;\n%s" % (
                         pp.subtree.compose_newick(labels=True),
@@ -464,7 +464,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
         extended_alignment.remove_insertion_columns()
         outfilename = self.get_output_filename("alignment_masked.fasta")
         extended_alignment.write_to_path(outfilename)
-        _LOG.info("Masked alignment written to %s" % outfilename)i
+        _LOG.info("Masked alignment written to %s" % outfilename)
         
         ### from sepp
         namerev_script = self.root_problem.subtree.rename_script()
@@ -520,7 +520,7 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
     def build_jobs(self):
         assert isinstance(self.root_problem, RootProblem)
         for placement_problem in self.root_problem.get_children():
-            "create placer jobs"
+            '''create placer jobs'''
             for i in range(0, self.root_problem.fragment_chunks):
                 pj = None
                 if self.placer == 'pplacer':
@@ -532,18 +532,18 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
                 placement_problem.add_job(get_placement_job_name(i), pj)
         for alg_problem in placement_problem.children:
             assert isinstance(alg_problem, SeppProblem)
-            "create the build model job"
+            '''create the build model job'''
             bj = HMMBuildJob()
             bj.setup_for_subproblem(alg_problem, molecule = self.molecule)
             alg_problem.add_job(bj.job_type, bj)
-            "create the search jobs"
-            for fc_problem in alg_problem.get_chilren():
+            '''create the search jobs'''
+            for fc_problem in alg_problem.get_children():
                 sj = HMMSearchJob()
                 sj.partial_setup_for_subproblem(
                     fc_problem.fragments, fc_problem, self.elim,
                     self.filters)
                 fc_problem.add_job(sj.job_type, sj)
-                "create the align job"
+                '''create the align job'''
                 aj = HMMAlignJob()
                 fc_problem.add_job(aj.job_type, aj)
                 aj.partial_setup_for_subproblem(
@@ -551,32 +551,32 @@ class TIPPExhaustiveAlgorithm(ExhaustiveAlgorithm):
 
     ### TIPP difference: introduce the threshold check
     def connect_jobs(self): 
-        " a callback function called after hmmbuild jobs are finished"
-        def eng_job_searchfragment(result, search_job):
+        ''' a callback function called after hmmbuild jobs are finished '''
+        def enq_job_searchfragment(result, search_job):
             search_job.hmmmodel = result
             JobPool().enqueue_job(search_job)
         assert isinstance(self.root_problem, SeppProblem)
         for placement_problem in self.root_problem.get_children():
-            "for each alignment subproblem, ..."
+            ''' for each alignment subproblem, ...'''
             for alg_problem in placement_problem.children:
                 assert isinstance(alg_problem, SeppProblem)
-                "create the build model job"
+                ''' create the build model job '''
                 bj = alg_problem.jobs["hmmbuild"]
-                "create the search jobs"
+                ''' create the search jobs '''
                 for fc_problem in alg_problem.get_children():
                     sj = fc_problem.jobs["hmmsearch"]
-                    "connect build and search jobs"
+                    '''connect build and search jobs'''
                     bj.add_call_Back(
                         lambda result, next_job=sj: enq_job_searchfragment(
                             result, next_job))
-               "join all align jobs of a placement subset
-                   (enqueues placement job)"
-               jaj = self._get_new_Join_Align_Job()
-               jaj.setup_with_placement_problem(placement_problem)
-           "Join all search jobs together (enqueues align jobs)"
+                '''join all align jobs of a placement subset
+                    (enqueues placement job)'''
+                jaj = self._get_new_Join_Align_Job()
+                jaj.setup_with_placement_problem(placement_problem)
+            '''Join all search jobs together (enqueues align jobs)'''
 
-           jsj = TIPPJoinSearchJobs(self.alignment_threshold)
-           jsj.setup_with_root_problem(self.root_problem)
+            jsj = TIPPJoinSearchJobs(self.alignment_threshold)
+            jsj.setup_with_root_problem(self.root_problem)
 
     ### TIPP difference: this function doesn't exist in UPP, obviously
     def load_reference(self, reference_pkg):
@@ -866,73 +866,72 @@ def augment_parser():
         help="fragment file "
              "[default: %(default)s]")
 
-     tippGroup = parser.add_argument_group(
-         "TIPP Options".upper(),
-         "These arguments set settings specific to TIPP")
-     tippGroup.add_argument(
-         "-R", "--reference_pkg", type=str,
-         dest="reference_pkg", metavar="N",
-         default=None,
-         help="Use a pre-computed reference package [default: None]")
-     tippGroup.add_argument(
-         "-at", "--alignmentThreshold", type=float,
-         dest="alignment_threshold", metavar="N",
-         default=0.95,
-         help="Enough alignment subsets are selected to reach a "
-              "cumulative probablity of N. This should be a number"
-              "between 0 and 1 [default 0.95]")
-     tippGroup.add_argument(
-         "-D", "--dist",
-         dest="distribution", action="store_true",
-         default=False,
-         help="Treat fragments as distribution")
-     )
-     tippGroup.add_argument(
-         "-pt", "--placementThreshold", type=float,
-         dest="placement_threshold", metavar="N",
-         default=0.95,
-         help="Enough placements are selected to reach a "
-              "cumulative probability of N. This should be a number"
-              " between 0 and 1 [default: 0.95]")
-     tippGroup.add_argument(
-         "-PD", "--push_down", type=bool,
-         dest="push_down", metavar="N",
-         default=True,
-         help="Whether to classify based on children below or above"
-              " insertion point. [default: True]")
-     tippGroup.add_argument(
-         "-tx", "--taxonomy", type=argparse.FileType('r'),
-         dest="taxonomy_file", metavar="TAXONOMY",
-         help="A file describing the taxonomy. This is a comma-separated text "
-              "file that has the following fileds: "
-              " taxon_id, parent_id, taxon_name, rank."
-              " If there are other columns, they are ingored."
-              " The first line is also assumed as the header, and ignored.")
-     tippGroup.add_argument(
-         "-txm", "--taxonomyNameMapping", type=argparse.FileType('r'),
-         dest="taxonomy_name_mapping_file", metavar="MAPPING",
-         help="A comma-separated text file mapping alignment sequence names to "
-              " taxonomic ids. "
-              " Formats (each line): "
-              " sequence_name, taxon_id. "
-              " If there are other columns, they are ignored. The first line is "
-              " also assumed to be the header, and ignored.")
-     tippGroup.add_argument(
-         "-adt", "--alignmentDecompositionTree", type=argparse.FileType('r'),
-         dest="alignment_decomposition_tree", metavar="TREE", default=None,
-         help="A newick tree file used for decomposing taxa into alignment subsets."
-              "[default: the backbone tree]")
-     tippGroup.add_argument(
-         "-C", "--cutoff", type=float,
-         dest="cutoff", metavar="N",
-         default=0.0,
-         help="Placement probability requirement to count toward the distribution."
-              "This should be a number between 0 and 1 [default: 0.0]") 
-
+    tippGroup = parser.add_argument_group(
+        "TIPP Options".upper(),
+        "These arguments set settings specific to TIPP")
+    tippGroup.add_argument(
+        "-R", "--reference_pkg", type=str,
+        dest="reference_pkg", metavar="N",
+        default=None,
+        help="Use a pre-computed reference package [default: None]")
+    tippGroup.add_argument(
+        "-at", "--alignmentThreshold", type=float,
+        dest="alignment_threshold", metavar="N",
+        default=0.95,
+        help="Enough alignment subsets are selected to reach a "
+        "cumulative probablity of N. This should be a number"
+             "between 0 and 1 [default 0.95]")
+    tippGroup.add_argument(
+        "-D", "--dist",
+        dest="distribution", action="store_true",
+        default=False,
+        help="Treat fragments as distribution"
+    )
+    tippGroup.add_argument(
+        "-pt", "--placementThreshold", type=float,
+        dest="placement_threshold", metavar="N",
+        default=0.95,
+        help="Enough placements are selected to reach a "
+        "cumulative probability of N. This should be a number"
+        " between 0 and 1 [default: 0.95]")
+    tippGroup.add_argument(
+        "-PD", "--push_down", type=bool,
+        dest="push_down", metavar="N",
+        default=True,
+        help="Whether to classify based on children below or above"
+             " insertion point. [default: True]")
+    tippGroup.add_argument(
+        "-tx", "--taxonomy", type=argparse.FileType('r'),
+        dest="taxonomy_file", metavar="TAXONOMY",
+        help="A file describing the taxonomy. This is a comma-separated text "
+             "file that has the following fileds: "
+             " taxon_id, parent_id, taxon_name, rank."
+             " If there are other columns, they are ingored."
+             " The first line is also assumed as the header, and ignored.")
+    tippGroup.add_argument(
+        "-txm", "--taxonomyNameMapping", type=argparse.FileType('r'),
+        dest="taxonomy_name_mapping_file", metavar="MAPPING",
+        help="A comma-separated text file mapping alignment sequence names to "
+             " taxonomic ids. "
+             " Formats (each line): "
+             " sequence_name, taxon_id. "
+             " If there are other columns, they are ignored. The first line is "
+             " also assumed to be the header, and ignored.")
+    tippGroup.add_argument(
+        "-adt", "--alignmentDecompositionTree", type=argparse.FileType('r'),
+        dest="alignment_decomposition_tree", metavar="TREE", default=None,
+        help="A newick tree file used for decomposing taxa into alignment subsets."
+             "[default: the backbone tree]")
+    tippGroup.add_argument(
+        "-C", "--cutoff", type=float,
+        dest="cutoff", metavar="N",
+        default=0.0,
+        help="Placement probability requirement to count toward the distribution."
+             "This should be a number between 0 and 1 [default: 0.0]") 
 
 def main():
     augment_parser()
-    UPPExhaustiveAlgorithm().run()
+    TIPPExhaustiveAlgorithm().run()
 
 
 if __name__ == '__main__':

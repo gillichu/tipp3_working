@@ -1,3 +1,4 @@
+import argparse 
 import gzip
 import os
 import sys
@@ -183,6 +184,7 @@ def build_profile(input, output_directory):
         with open(refpkg[gene]["size"], 'r') as f:
             total_taxa = int(f.readline().strip())
         default_subset_size = int(total_taxa * 0.10)
+        print("Default subset size is 10% of the total taxa: %s" % str(default_subset_size))
 
         # Set alignment size and placement size
         alignment_size = options().alignment_size
@@ -196,7 +198,7 @@ def build_profile(input, output_directory):
 
         if placement_size is None:
             # placement_size = max(default_subset_size, alignment_size)
-            placement_size = 10000  # Needs to be large
+            placement_size = 10000  # Needs to be large, TODO: Gillian this should probably be bigger
 
         if alignment_size > total_taxa:
             alignment_size = total_taxa
@@ -252,6 +254,7 @@ def build_profile(input, output_directory):
             + " -p " + temp_dir + "/temp_file" \
             + " -o tipp_" + gene \
             + " -d " + output_directory + "/markers/ " \
+            + " -s " + options().sequence_file + " " \
             + extra
 
         print(cmd)
@@ -929,6 +932,7 @@ def augment_parser():
     # Process TIPP command line options
     parser = sepp.config.get_parser()
 
+    
     tippGroup = parser.add_argument_group(
         "TIPP Options".upper(),
         "These arguments set settings specific to TIPP")
@@ -1000,6 +1004,68 @@ def augment_parser():
         default="markers-v3",
         help="Set of markers to use [default: markers-v3]")
 
+    inputGroup = parser.groups['inputGroup']
+    inputGroup.add_argument(
+        "-s", "--sequence_file", type=str, #argparse.FileType('r'),
+        dest="sequence_file", metavar="SEQ",
+        default=None,
+        help="Unaligned sequence file.  "
+             "If no backbone tree and alignment is given, the sequence file "
+             "will be randomly split into a backbone set (size set to B) and "
+             "query set (remaining sequences), [default: None]")
+    inputGroup.add_argument(
+        "-c", "--config",
+        dest="config_file", metavar="CONFIG",
+        type=argparse.FileType('r'),
+        help="A config file, including options used to run UPP. Options "
+             "provided as command line arguments overwrite config file values"
+             " for those options. "
+             "[default: %(default)s]")
+    inputGroup.add_argument(
+        "-t", "--tree",
+        dest="tree_file", metavar="TREE",
+        type=str, #argparse.FileType('r'),
+        help="Input tree file (newick format) "
+             "[default: %(default)s]")
+    inputGroup.add_argument(
+        "-a", "--alignment",
+        dest="alignment_file", metavar="ALIGN",
+        type=str, #argparse.FileType('r'),
+        help="Aligned fasta file "
+             "[default: %(default)s]")
+
+    #inputGroup.add_argument(
+    #    "-b", "--backtranslation",
+    #    dest="backtranslation_sequence_file", metavar="SEQ",
+    #    type=argparse.FileType('r'),
+    #    default=None,
+    #    help="Fasta file containing unaligned DNA sequences "
+    #         "corresponding every reference and query sequence "
+    #         "[default: None]")
+
+    uppGroup = parser.add_argument_group(
+        "UPP Options".upper(),
+        "These options set settings specific to UPP")
+
+    uppGroup.add_argument(
+        "-l", "--longbranchfilter", type=int,
+        dest="long_branch_filter", metavar="N",
+        default=None,
+        help="Branches longer than N times the median branch length are "
+             "filtered from backbone and added to fragments."
+             " [default: None (no filtering)]")
+    
+    decompGroup = parser.groups['decompGroup']
+    decompGroup.__dict__['description'] = ' '.join(
+        ["These options",
+         ("determine the alignment decomposition size, backbone size,"
+          " and how to decompose the backbone set.")])
+    decompGroup.add_argument(
+        "-A", "--alignmentSize", type=int,
+        dest="alignment_size", metavar="N",
+        default=10,
+        help="max alignment subset size of N "
+             "[default: 10]")
 
 def main():
     augment_parser()
